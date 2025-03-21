@@ -27,6 +27,7 @@ public class Main extends ApplicationAdapter {
     private FrameBuffer fbo;
     private List<Vector2> path;
     private int currentPathIndex;
+    private Texture highlightTexture;
 
     @Override
     public void create() {
@@ -42,7 +43,7 @@ public class Main extends ApplicationAdapter {
         gram.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         whiteTexture = createSolidColorTexture(Color.WHITE);
         blackTexture = createSolidColorTexture(Color.BLACK);
-
+        highlightTexture = createSolidColorTexture(new Color(0, 0, 1, 0.5f));
 
         currentPathIndex = 0;
         makePathMove();
@@ -73,10 +74,24 @@ public class Main extends ApplicationAdapter {
             path.set(currentPathIndex, newPosition);
         }
 
+        // Obter a posição do mouse no mundo do jogo
+        Vector2 mousePos = viewport.unproject(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+
+        // Determinar em qual quadrado o mouse está
+        int mouseGridX = (int) mousePos.x;
+        int mouseGridY = (int) mousePos.y;
+
 
         batch.begin();
         batch.draw(baseGramTexture, 0, 0, 32, 16, 0, 0, 1, 1);
         batch.draw(blackTexture, path.get(currentPathIndex).x, path.get(currentPathIndex).y, 1, 1);
+        // Verificar se o mouse está sobre um quadrado válido
+        if (mouseGridX >= 0 && mouseGridX < 32 && mouseGridY >= 0 && mouseGridY < 16) {
+            // Desenhar o quadrado destacado
+            batch.draw(highlightTexture, mouseGridX, mouseGridY, 1, 1);
+        }
+
+
         batch.end();
     }
 
@@ -113,12 +128,13 @@ public class Main extends ApplicationAdapter {
         batch.begin();
         for (int i = 0; i < 32; i++) {
             for (int j = 0; j < 16; j++) {
-                // do a chess colors
-                if (i % 2 == 0 && j % 2 == 0) {
-                    batch.draw(gram, i, j, 1, 1);
-                } else if (i % 2 == 1 && j % 2 == 1) {
-                    batch.draw(gram, i, j, 1, 1);
-                }
+                batch.draw(gram, i, j, 1, 1);
+//                // do a chess colors
+//                if (i % 2 == 0 && j % 2 == 0) {
+//                    batch.draw(gram, i, j, 1, 1);
+//                } else if (i % 2 == 1 && j % 2 == 1) {
+//                    batch.draw(gram, i, j, 1, 1);
+//                }
             }
         }
         batch.end();
